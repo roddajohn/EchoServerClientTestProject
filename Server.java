@@ -5,51 +5,57 @@ import java.io.*;
 public class Server {
     public void runServer() {
 	ServerSocket socket = null;
+	ArrayList<ClientHandlingThread> threads = new ArrayList<ClientHandlingThread>();
 
 	try {
 	    socket = new ServerSocket(23456);
 	}
 	catch (IOException e) {
-	    System.err.println("IOException");
-	    return;
+	    e.printStackTrace();
 	}
 
 	Socket client = null;
-	PrintWriter out = null;
-	BufferedReader in = null;
-	try {
-	    client = socket.accept();
-	    out = new PrintWriter(client.getOutputStream(), true);
-	    in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-	}
-	catch (IOException e) {
-	    System.err.println("Input Output Exception");
-	    return;
-	}
-
-	String input;
-	try {
-	    while((input = in.readLine()) != null) {
-		out.println(input);
-		if (input.equals("bye")) {
-		    out.println("&&");
-		    break;
-		}
+	while (1 == 1) {
+	    try {
+		client = socket.accept();
+		ClientHandlingThread c = new ClientHandlingThread(client);
+		c.start();
+		threads.add(c);
 	    }
-	    
+	    catch (IOException e) {
+		e.printStackTrace();
+	    }
 	}
-	catch (IOException e) {
-	    System.err.println("Error");
+    }
+
+    private class ClientHandlingThread extends Thread {
+	private Socket socket = null;
+
+	public ClientHandlingThread(Socket s) {
+	    super("Server Thread");
+	    this.socket = s;
 	}
 
-	try {
-	    out.close();
-	    in.close();
-	    client.close();
-	    socket.close();
-	}
-	catch (IOException e) {
-	    System.err.println("error");
+	public void run() {
+	    try {
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		
+		String inputLine;
+
+		while ((inputLine = in.readLine()) != null) {
+		    out.println(inputLine);
+		    if (inputLine.equals("Bye")) {
+			break;
+		    }
+		}
+		socket.close();
+		out.close();
+		in.close();
+	    }
+	    catch (IOException e) {
+		e.printStackTrace();
+	    }
 	}
     }
 }

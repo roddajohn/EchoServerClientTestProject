@@ -17,11 +17,11 @@ public class Client {
 	    in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
 	}
 	catch (UnknownHostException e) {
-	    System.err.println("Unknown Host Exception");
+	    e.printStackTrace();
 	    return false;
 	}
 	catch (IOException e) {
-	    System.err.println("Input Output Exception");
+	    e.printStackTrace();
 	    return false;
 	}
 
@@ -31,17 +31,18 @@ public class Client {
 
 	System.out.print("input: ");
 	while ((input = console.nextLine()) != null) {
-	    if (!input.equals("&&")) {
-		out.println(input);
+	    if (input.equals("bye")) {
+		out.println("bye");
+		break;
 	    }
 	    else {
-		break;
+		out.println(input);
 	    }
 	    try {
 		System.out.println("Server: " + in.readLine());
 	    }
 	    catch (IOException e) {
-		System.err.println("IOException");
+		e.printStackTrace();
 	    }
 	    System.out.print("input: ");
 	}
@@ -53,7 +54,7 @@ public class Client {
 	    serverSocket.close();
 	}
 	catch (IOException e) {
-	    System.err.println("Error IO");
+	    e.printStackTrace();
 	}
 	return true;
     }
